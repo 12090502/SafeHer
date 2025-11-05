@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.SafeHer" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.SafeHer" parent="android:Theme.Material.Light.NoActionBar" >
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <style name="Theme.SafeHer.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/app</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splsh_one</item>
+        <item name="postSplashScreenTheme">@style/Theme.SafeHer</item>
+        <item name="windowSplashScreenAnimationDuration">300</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/white</item>
+    </style>
+
 </resources>
