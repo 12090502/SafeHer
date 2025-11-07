@@ -5,6 +5,7 @@ plugins {
 
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.google.gms.google.services)
 }
 

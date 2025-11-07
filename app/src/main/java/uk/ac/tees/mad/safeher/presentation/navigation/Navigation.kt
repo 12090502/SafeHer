@@ -1,4 +1,4 @@
-package uk.ac.tees.mad.shoplocal.presentation.navigation
+package uk.ac.tees.mad.safeher.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -10,17 +10,19 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.google.firebase.auth.FirebaseAuth
-import uk.ac.tees.mad.presentation.ViewModel.AuthViewModel
-import uk.ac.tees.mad.presentation.ViewModel.HomeViewModel
+import uk.ac.tees.mad.safeher.presentation.Screens.AuthScreen
+import uk.ac.tees.mad.safeher.presentation.Screens.HomeScreen
+import uk.ac.tees.mad.safeher.presentation.Screens.LoginScreen
+import uk.ac.tees.mad.safeher.presentation.Screens.SingInScreen
+import uk.ac.tees.mad.safeher.presentation.ViewModel.AuthViewModel
+import uk.ac.tees.mad.safeher.presentation.ViewModel.HomeViewModel
 
 
 @Composable
 fun Navigation(
-    modifier: Modifier,
-    homeViewModel: HomeViewModel,
-    authViewModel: AuthViewModel,
+    modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel, authViewModel: AuthViewModel,
 ) {
 
     val navController = rememberNavController()
@@ -29,6 +31,7 @@ fun Navigation(
 
 
     var currentUser by remember { mutableStateOf(auth.currentUser) }
+
 
     DisposableEffect(Unit) {
         val listener = FirebaseAuth.AuthStateListener {
@@ -39,7 +42,7 @@ fun Navigation(
     }
 
     val startDestination = if (currentUser == null) {
-        Routes.AuthScreen
+        Routes.SingInScreen
     } else {
         Routes.HomeScreen
     }
@@ -50,7 +53,9 @@ fun Navigation(
 
 
             AuthScreen(
-                navController = navController,
+                homeViewModel = homeViewModel,
+                authViewModel = authViewModel,
+                navController = navController
             )
 
         }
@@ -59,9 +64,9 @@ fun Navigation(
 
 
             SingInScreen(
+                homeViewModel = homeViewModel,
                 authViewModel = authViewModel,
-
-                navController = navController,
+                navController = navController
             )
 
         }
@@ -69,6 +74,8 @@ fun Navigation(
 
 
             LoginScreen(
+
+                homeViewModel = homeViewModel,
                 authViewModel = authViewModel,
                 navController = navController
             )
@@ -78,9 +85,9 @@ fun Navigation(
 
 
             HomeScreen(
-                navController = navController,
-                authViewModel = authViewModel,
                 homeViewModel = homeViewModel,
+                authViewModel = authViewModel,
+                navController = navController
             )
 
         }
@@ -90,3 +97,5 @@ fun Navigation(
 
 
 }
+
+
