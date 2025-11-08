@@ -42,7 +42,7 @@ fun Navigation(
     }
 
     val startDestination = if (currentUser == null) {
-        Routes.SingInScreen
+        Routes.LogInScreen
     } else {
         Routes.HomeScreen
     }

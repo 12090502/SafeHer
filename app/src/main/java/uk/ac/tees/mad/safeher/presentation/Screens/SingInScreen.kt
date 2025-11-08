@@ -1,6 +1,8 @@
 package uk.ac.tees.mad.safeher.presentation.Screens
 
 import android.util.Patterns
+import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,12 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,8 +35,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -37,6 +49,7 @@ import kotlinx.coroutines.delay
 import uk.ac.tees.mad.safeher.R
 import uk.ac.tees.mad.safeher.presentation.ViewModel.AuthViewModel
 import uk.ac.tees.mad.safeher.presentation.ViewModel.HomeViewModel
+import uk.ac.tees.mad.safeher.presentation.navigation.Routes
 
 @Composable
 fun SingInScreen(modifier: Modifier = Modifier,
@@ -62,7 +75,10 @@ fun SingInScreen(modifier: Modifier = Modifier,
     var isLoading by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(Triggeer) {
         delay(3000)
-        passwordVisible = !passwordVisible
+        if (passwordVisible){
+            passwordVisible = !passwordVisible
+        }
+
     }
     val context = LocalContext.current
     val cornerShape = RoundedCornerShape(14.dp)
@@ -187,9 +203,95 @@ fun SingInScreen(modifier: Modifier = Modifier,
                     disabledLabelColor = textColor
                 ), maxLines = 1
             )
+
+
+
+
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
+
+            OutlinedButton(
+                onClick = {
+                    authViewModel.signUp(
+                        email = email,
+                        password = password,
+                        name = name,
+                        onResult = { message, success ->
+                            if (success) {
+                                isLoading = true
+                                navController.navigate(Routes.HomeScreen)
+                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                                isLoading = false
+                            } else {
+                                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    )
+
+
+
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)
+                    .height(52.dp),
+                shape = cornerShape,
+                border = BorderStroke(2.dp, textColor),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.Green
+                )
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.Black,
+                        strokeWidth = 2.dp,
+                        modifier = Modifier.size(30.dp)
+                    )
+                } else {
+                    Text(
+                        "Sign Up",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(onClick = { navController.navigate(Routes.LogInScreen) }) {
+                Text(
+                    buildAnnotatedString {
+                        withStyle(
+                            style = SpanStyle(
+                                color = Color.Black
+                            )
+                        ) { append("Already have an account? ") }
+
+                        withStyle(
+                            style = SpanStyle(
+                                color = Color(0xFF0073FF),
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Medium
+                            )
+                        ) { append("Log in") }
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+        }
 
 
 
