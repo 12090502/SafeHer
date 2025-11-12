@@ -5,9 +5,16 @@ import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 
 import androidx.core.content.ContextCompat
@@ -23,6 +30,8 @@ fun HomeScreen(
     authViewModel: AuthViewModel,
     navController: NavController,
 ) {
+    val locationState by homeViewModel.locationState.collectAsState()
+
     val context = LocalContext.current
     val activity = context as ComponentActivity
 
@@ -43,6 +52,18 @@ fun HomeScreen(
             notGranted.toTypedArray(),
             101
         )
+    }
+
+    Column(modifier = Modifier.padding(16.dp)) {
+        Button(onClick = {
+            homeViewModel.fetchCurrentLocation(context)
+            
+        }) {
+            Text("Get Current Location")
+        }
+
+        Text("Latitude: ${locationState.lat}")
+        Text("Longitude: ${locationState.lon}")
     }
 
 }
