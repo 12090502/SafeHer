@@ -12,6 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -31,9 +34,12 @@ fun HomeScreen(
     navController: NavController,
 ) {
     val locationState by homeViewModel.locationState.collectAsState()
+    val cityName by homeViewModel.cityName.collectAsState()
+    var address by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val activity = context as ComponentActivity
+
 
     val permissions = mutableListOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
@@ -57,13 +63,23 @@ fun HomeScreen(
     Column(modifier = Modifier.padding(16.dp)) {
         Button(onClick = {
             homeViewModel.fetchCurrentLocation(context)
-            
+
+            if (locationState.lat != 0.0 && locationState.lon != 0.0) {
+                address =    homeViewModel.getAddressFromCoordinates(
+                    context,
+                    locationState.lat,
+                    locationState.lon
+                )
+            }
+
+
         }) {
             Text("Get Current Location")
         }
 
         Text("Latitude: ${locationState.lat}")
         Text("Longitude: ${locationState.lon}")
+        Text("Address: $address")
     }
 
 }

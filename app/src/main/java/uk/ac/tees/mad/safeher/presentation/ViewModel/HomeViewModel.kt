@@ -28,8 +28,6 @@ class HomeViewModel @Inject constructor() : ViewModel() {
 
     val locationState: StateFlow<Coordinates> = _locationState.asStateFlow()
 
-    private val _cityName= MutableStateFlow<String>("")
-    val cityName: StateFlow<String> = _cityName.asStateFlow()
 
     @SuppressLint("MissingPermission")
     fun fetchCurrentLocation(context: Context) {
@@ -50,13 +48,19 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    private val _cityName= MutableStateFlow<String>("")
+    val cityName: StateFlow<String> = _cityName.asStateFlow()
     fun getAddressFromCoordinates(context: Context, lat: Double, lon: Double): String {
         return try {
             val geocoder = Geocoder(context, Locale.getDefault())
             val addresses = geocoder.getFromLocation(lat, lon, 1)
+
             if (!addresses.isNullOrEmpty()) {
                 val address = addresses[0]
+                val city = address.locality ?: "Unknown city"
+                _cityName.value = city
                 address.getAddressLine(0) ?: "Address not found"
+
             } else {
                 "Address not found"
             }
