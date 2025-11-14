@@ -3,8 +3,10 @@ package uk.ac.tees.mad.safeher.presentation.ViewModel
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
@@ -27,20 +29,36 @@ class HomeViewModel @Inject constructor() : ViewModel() {
     private val _locationState = MutableStateFlow(Coordinates())
 
     val locationState: StateFlow<Coordinates> = _locationState.asStateFlow()
+    private val _cityName = MutableStateFlow<String>("")
+    val cityName: StateFlow<String> = _cityName.asStateFlow()
 
+    private val _fullAddress = MutableStateFlow<String>("")
+    val fullAddress: StateFlow<String> = _fullAddress.asStateFlow()
 
     @SuppressLint("MissingPermission")
     fun fetchCurrentLocation(context: Context) {
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-        viewModelScope.launch {
+        viewModelScope.launch() {
             try {
                 val location = fusedLocationClient.lastLocation.await()
                 if (location != null) {
-
-                    _locationState.update {
-                        it.copy(lon = location.longitude,
-                            lat = location.latitude)
+                    val geocoder = Geocoder(context, Locale.getDefault())
+                    val addresses =
+                        geocoder.getFromLocation(location.latitude, location.longitude, 1)
+                    if (!addresses.isNullOrEmpty()) {
+                        val address = addresses[0]
+                        val city = address.locality ?: "Unknown city"
+                        _cityName.value = city
+                        _fullAddress.value = address.getAddressLine(0) ?: "Address not found"
                     }
+                    _locationState.update {
+                        it.copy(
+                            lon = location.longitude,
+                            lat = location.latitude
+                        )
+                    }
+
+
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -48,29 +66,38 @@ class HomeViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    private val _cityName= MutableStateFlow<String>("")
-    val cityName: StateFlow<String> = _cityName.asStateFlow()
-    fun getAddressFromCoordinates(context: Context, lat: Double, lon: Double): String {
-        return try {
-            val geocoder = Geocoder(context, Locale.getDefault())
-            val addresses = geocoder.getFromLocation(lat, lon, 1)
 
-            if (!addresses.isNullOrEmpty()) {
-                val address = addresses[0]
-                val city = address.locality ?: "Unknown city"
-                _cityName.value = city
-                address.getAddressLine(0) ?: "Address not found"
-
-            } else {
-                "Address not found"
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            "Unable to get address"
+    fun smsIntent(context: Context, lon: Double, lat: Double,phoneNumbers : List<String>) {
+        val message =
+            " Emergency! I need help. Here's my location: https://maps.google.com/?q=$lon,$lat"
+        val intent = Intent(Intent.ACTION_SENDTO).apply {
+            data = Uri.parse("smsto:" + phoneNumbers.joinToString(separator = ";"))
+            putExtra("sms_body", message)
         }
+        context.startActivity(intent)
     }
 
 
 }
+//    fun getAddressFromCoordinates(context: Context, lat: Double, lon: Double): String {
+//        return try {
+//            val geocoder = Geocoder(context, Locale.getDefault())
+//            val addresses = geocoder.getFromLocation(lat, lon, 1)
+//
+//            if (!addresses.isNullOrEmpty()) {
+//                val address = addresses[0]
+//                val city = address.locality ?: "Unknown city"
+//                _cityName.value = city
+//                address.getAddressLine(0) ?: "Address not found"
+//
+//            } else {
+//                "Address not found"
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            "Unable to get address"
+//        }
+//    }
+
 
 data class Coordinates(val lon: Double = 0.0, val lat: Double = 0.0)

@@ -17,5 +17,11 @@ sealed class Routes {
     @Serializable
     data object HomeScreen
 
+    @Serializable
+    data object TrustedContactScreen
+
+    @Serializable
+    data object ProfileScreen
+
 
 }

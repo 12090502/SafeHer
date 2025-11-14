@@ -119,7 +119,7 @@ fun AuthScreen(
                     .padding(horizontal = 10.dp)
                     .height(52.dp),
                 shape = cornerShape,
-                border = BorderStroke(2.dp, textColor),
+                border = BorderStroke(2.dp, Color.Black),
                 colors = ButtonDefaults.outlinedButtonColors(
                     containerColor = Color.Transparent,
                     contentColor = Color.Green

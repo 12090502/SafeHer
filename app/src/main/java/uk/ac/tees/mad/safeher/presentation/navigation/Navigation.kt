@@ -14,7 +14,9 @@ import com.google.firebase.auth.FirebaseAuth
 import uk.ac.tees.mad.safeher.presentation.Screens.AuthScreen
 import uk.ac.tees.mad.safeher.presentation.Screens.HomeScreen
 import uk.ac.tees.mad.safeher.presentation.Screens.LoginScreen
+import uk.ac.tees.mad.safeher.presentation.Screens.ProfileScreen
 import uk.ac.tees.mad.safeher.presentation.Screens.SingInScreen
+import uk.ac.tees.mad.safeher.presentation.Screens.TrustedContactScreen
 import uk.ac.tees.mad.safeher.presentation.ViewModel.AuthViewModel
 import uk.ac.tees.mad.safeher.presentation.ViewModel.HomeViewModel
 
@@ -42,7 +44,7 @@ fun Navigation(
     }
 
     val startDestination = if (currentUser == null) {
-        Routes.LogInScreen
+        Routes.AuthScreen
     } else {
         Routes.HomeScreen
     }
@@ -85,6 +87,25 @@ fun Navigation(
 
 
             HomeScreen(
+                homeViewModel = homeViewModel,
+                authViewModel = authViewModel,
+                navController = navController
+            )
+
+        }
+        composable<Routes.TrustedContactScreen> {
+
+
+            TrustedContactScreen(
+                homeViewModel = homeViewModel,
+                authViewModel = authViewModel,
+                navController = navController
+            )
+
+        }
+
+        composable<Routes.ProfileScreen> {
+            ProfileScreen(
                 homeViewModel = homeViewModel,
                 authViewModel = authViewModel,
                 navController = navController
