@@ -50,7 +50,7 @@ fun BottomNavigation(navController: NavHostController, modifier: Modifier = Modi
             outlinedIcon = Icons.Outlined.AccountCircle
         )
     )
-    var selectedIndex by rememberSaveable { mutableIntStateOf(1) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navController.currentDestination?.route
 
@@ -69,17 +69,17 @@ fun BottomNavigation(navController: NavHostController, modifier: Modifier = Modi
 
                     when (selectedIndex) {
 
-//                        0 -> if (currentRoute != Routes.MyShops::class.qualifiedName) {
-//                            navController.navigate(Routes.MyShops)
-//                        }
+                        0 -> if (currentRoute != Routes.TrustedContactScreen::class.qualifiedName) {
+                            navController.navigate(Routes.TrustedContactScreen)
+                        }
 
                         1 -> if (currentRoute != Routes.HomeScreen::class.qualifiedName) {
                             navController.navigate(Routes.HomeScreen)
                         }
 
-//                        2 -> if (currentRoute != Routes.ProfileScreen::class.qualifiedName) {
-//                            navController.navigate(Routes.ProfileScreen)
-//                        }
+                        2 -> if (currentRoute != Routes.ProfileScreen::class.qualifiedName) {
+                            navController.navigate(Routes.ProfileScreen)
+                        }
                     }
                 },
                 icon = {
