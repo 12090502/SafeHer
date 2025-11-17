@@ -2,19 +2,18 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-
+    alias(libs.plugins.google.gms.google.services)
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     alias(libs.plugins.kotlinx.serialization)
-    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
-    namespace = "uk.ac.tees.mad.safeher"
+    namespace = "uk.ac.tees.mad.shoplocal"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "uk.ac.tees.mad.safeher"
+        applicationId = "uk.ac.tees.mad.shoplocal"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -30,6 +29,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -54,8 +54,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
     implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -64,7 +64,6 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
 
 //  Kotlin Serialization
     implementation(libs.kotlinx.serialization)
@@ -109,17 +108,6 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.8.0")
 //     Icon
     implementation("androidx.compose.material:material-icons-extended:1.7.0")
-
-
-
-
-
-
-
-
-
-
-
 
 
 }
