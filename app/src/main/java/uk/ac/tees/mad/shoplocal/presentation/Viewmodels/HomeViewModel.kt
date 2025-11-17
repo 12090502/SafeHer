@@ -201,15 +201,15 @@ class HomeViewModel @Inject constructor(
         val uid = auth.currentUser?.uid ?: return
 
         viewModelScope.launch(Dispatchers.IO) {
-            _isLoading.value = true
-            try {
 
+            try {
+                _isLoading.value = true
 
 
                 val snapshot = firestore.collection("user").document(uid).get().await()
                 val savedShop = snapshot.get("savedShop") as? List<String> ?: emptyList()
 
-
+                _isLoading.value = false
                 shopDao.getShopByIds(savedShop).collect { shopData ->
                     _savedShop.value = shopData
                 }
@@ -217,9 +217,9 @@ class HomeViewModel @Inject constructor(
 
             } catch (e: Exception) {
                 Log.e("Firestore", "Error fetching saved shops: ${e.message}")
-
+                _isLoading.value = false
             }
-            _isLoading.value = false
+
         }
     }
 

@@ -110,7 +110,7 @@ fun MyShopScreen(
                     )
                 }
             } else {
-                LazyColumn(modifier.padding(8.dp)) {
+                LazyColumn(modifier.padding(8.dp).fillMaxSize()) {
                     items(savedShopList) {
                         MyShoopCard(
                             shopEntity = it, navHostController = navController,

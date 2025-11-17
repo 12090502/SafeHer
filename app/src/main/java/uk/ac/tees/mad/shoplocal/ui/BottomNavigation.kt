@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.shoplocal.ui
 
+import android.R.attr.contentDescription
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
@@ -85,7 +86,7 @@ fun BottomNavigation(navController: NavHostController, modifier: Modifier = Modi
                 },
                 icon = {
                     Icon(
-                        imageVector = if (selectedIndex == index) navItem.filledIcon else navItem.outlinedIcon,
+                        imageVector =navItem.filledIcon,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.background
 
