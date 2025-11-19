@@ -71,9 +71,12 @@ class HomeViewModel @Inject constructor(private val contactDao: ContactDao) : Vi
     }
 
 
-    fun smsIntent(context: Context, lon: Double, lat: Double, phoneNumbers: List<String>) {
+    fun smsIntent(context: Context, cityName: String, lon: Double, lat: Double, phoneNumbers: List<String>) {
         val message =
             " Emergency! I need help. Here's my location: https://maps.google.com/?q=$lon,$lat"
+
+
+
         val intent = Intent(Intent.ACTION_SENDTO).apply {
             data = Uri.parse("smsto:" + phoneNumbers.joinToString(separator = ";"))
             putExtra("sms_body", message)

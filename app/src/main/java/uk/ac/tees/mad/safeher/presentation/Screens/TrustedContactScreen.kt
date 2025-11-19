@@ -1,5 +1,6 @@
 package uk.ac.tees.mad.safeher.presentation.Screens
 
+import ContactCard
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -22,8 +23,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +38,8 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,6 +55,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -59,6 +66,7 @@ import uk.ac.tees.mad.safeher.presentation.UtilsScreens.BottomNavigation
 import uk.ac.tees.mad.safeher.presentation.ViewModel.AuthViewModel
 import uk.ac.tees.mad.safeher.presentation.ViewModel.HomeViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrustedContactScreen(
     modifier: Modifier = Modifier,
@@ -103,14 +111,40 @@ fun TrustedContactScreen(
 
     Scaffold(
         modifier
-            .fillMaxSize(), bottomBar = {
+            .fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Trusted Contacts",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            color = MaterialTheme.colorScheme.background,
+                            fontWeight = FontWeight.Bold
+                        )
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFC1A4FA)
+                )
+            )
+        },
+        bottomBar = {
             BottomNavigation(
                 navController = navController, modifier = modifier
             )
         }, floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    showDialog = !showDialog
+                    if (contacts.size < 5) {
+                        showDialog = !showDialog
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "You can only add up to 5 trusted contacts",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
                 },
                 modifier.padding(end = 20.dp, bottom = 20.dp),
                 containerColor = Color(0xFF894AFF),
@@ -134,24 +168,72 @@ fun TrustedContactScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
+                if (contacts.size != 0) {
 
-                LazyColumn(
-                    modifier = modifier
-                        .fillMaxSize()
-                        .padding(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(contacts) { contact ->
-                        ContactCard(
-                            contact = contact,
-                            onDelete = {
-                                homeViewModel.deleteContact(it)
-                            },
-                            homeViewModel = homeViewModel
-                        )
+                    LazyColumn(
+                        modifier = modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(contacts) { contact ->
+                            ContactCard(
+                                contact = contact,
+                                onDelete = {
+                                    homeViewModel.deleteContact(it)
+                                },
+                                homeViewModel = homeViewModel
+                            )
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "No contacts found",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    color = MaterialTheme.colorScheme.background,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Text(
+                                text = "Please add your trusted contacts.",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    color = MaterialTheme.colorScheme.background
+                                ),
+                                textAlign = TextAlign.Center
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Button(
+                                onClick = { showDialog = !showDialog },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF894AFF)
+                                ),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text(
+                                    text = "Add Trusted Contact",
+                                    color = MaterialTheme.colorScheme.background,
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                            }
+                        }
                     }
                 }
 
+
             }
         }
 
@@ -159,104 +241,6 @@ fun TrustedContactScreen(
 }
 
 
-@Composable
-fun ContactCard(
-    contact: ContactsEntity,
-    onDelete: (ContactsEntity) -> Unit,
-    homeViewModel: HomeViewModel,
-) {
 
-    var isEditing by remember { mutableStateOf(false) }
-
-    if (isEditing) {
-        val context = LocalContext.current
-        AddTrustedContactDialogEdit(
-            context = context,
-            onDismiss = { isEditing = false },
-            onSave = { name, number, relationship ->
-
-                homeViewModel.updateContact(
-                    contact = ContactsEntity(
-                        id = contact.id,
-                        name = name,
-                        relationShip = relationship,
-                        contactNumber = number
-                    )
-                )
-                Toast.makeText(context, "Saved $name ($relationship)", Toast.LENGTH_SHORT).show()
-                isEditing = false
-            }
-        )
-
-    }
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .shadow(4.dp, RoundedCornerShape(16.dp)),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFA676FF)
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Contact Details
-            Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = contact.name,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        color = MaterialTheme.colorScheme.background,
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Text(
-                    text = "Relationship: ${contact.relationShip}",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.background.copy(alpha = 0.9f)
-                    )
-                )
-
-                Text(
-                    text = "Contact: ${contact.contactNumber}",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.background.copy(alpha = 0.9f)
-                    )
-                )
-            }
-
-            // Edit & Delete Buttons
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { isEditing = !isEditing }) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit Contact",
-                        tint = MaterialTheme.colorScheme.background
-                    )
-                }
-
-                IconButton(onClick = { onDelete(contact) }) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete Contact",
-                        tint = MaterialTheme.colorScheme.background
-                    )
-                }
-            }
-        }
-    }
-}
 
 

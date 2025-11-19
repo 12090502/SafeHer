@@ -50,7 +50,7 @@ fun BottomNavigation(navController: NavHostController, modifier: Modifier = Modi
             outlinedIcon = Icons.Outlined.AccountCircle
         )
     )
-    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    var selectedIndex by rememberSaveable { mutableIntStateOf(1) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navController.currentDestination?.route
 
@@ -84,7 +84,7 @@ fun BottomNavigation(navController: NavHostController, modifier: Modifier = Modi
                 },
                 icon = {
                     Icon(
-                        imageVector = if (selectedIndex == index) navItem.filledIcon else navItem.outlinedIcon,
+                        imageVector = navItem.outlinedIcon,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.background
 

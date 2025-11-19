@@ -1,12 +1,16 @@
 package uk.ac.tees.mad.safeher.presentation.Screens
 
 import android.Manifest
+import android.R.id.message
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +36,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
@@ -43,6 +48,7 @@ import androidx.navigation.NavHostController
 import uk.ac.tees.mad.safeher.presentation.UtilsScreens.BottomNavigation
 import uk.ac.tees.mad.safeher.presentation.ViewModel.AuthViewModel
 import uk.ac.tees.mad.safeher.presentation.ViewModel.HomeViewModel
+import java.io.File.separator
 
 @Composable
 fun HomeScreen(
@@ -77,6 +83,7 @@ fun HomeScreen(
             activity, notGranted.toTypedArray(), 101
         )
     }
+    val contacts by homeViewModel.allContacts.collectAsState()
 
     val PrimaryBrush = Brush.verticalGradient(
         colors = listOf(
@@ -94,18 +101,73 @@ fun HomeScreen(
             )
         }) { paddingValues ->
         Box(
-            modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .background(brush = PrimaryBrush),
+                .background(brush = PrimaryBrush)
+                .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
-            Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Header text
+                Text(
+                    text = "Emergency Assistance",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.background
+                    )
+                )
 
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Subtext / Description
+                Text(
+                    text = "In case of any danger or emergency, press the SOS button below to alert your trusted contacts immediately.",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        MaterialTheme.colorScheme.background,
+                        lineHeight = 20.sp,
+                        textAlign = TextAlign.Center
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
             }
-            Column(modifier.align(Alignment.BottomCenter)) {
 
+            // SOS Button at bottom
+            Column(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Button(
                     onClick = {
+
+                        if (contacts.size != 0) {
+
+                            homeViewModel.fetchCurrentLocation(context)
+
+                            val phoneNumbers: List<String> = contacts.map { it.contactNumber }
+
+                            homeViewModel.smsIntent(
+                                context = context,
+                                lon = locationState.lon,
+                                lat = locationState.lat,
+                                phoneNumbers = phoneNumbers,
+                                cityName = cityName
+                            )
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Please add a trusted contact first",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+
+
 
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0076)),
@@ -122,10 +184,17 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.background
                     )
                 }
-                Spacer(modifier.height(50.dp))
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Press and hold in case of emergency",
+                    color = Color.White.copy(alpha = 0.8f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                Spacer(modifier = Modifier.height(50.dp))
             }
-
-
         }
     }
 
