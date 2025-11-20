@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
@@ -57,8 +59,7 @@ fun HomeScreen(
     authViewModel: AuthViewModel,
     navController: NavHostController,
 ) {
-//    abhishek.adgamadigital@gmail.com
-//    Adgama123@
+
     val locationState by homeViewModel.locationState.collectAsState()
     val cityName by homeViewModel.cityName.collectAsState()
     val fullAddress by homeViewModel.fullAddress.collectAsState()
@@ -199,4 +200,99 @@ fun HomeScreen(
     }
 
 
+}
+
+
+@Preview(showBackground = true, name = "SafeHer – Home / Emergency Screen")
+@Composable
+fun HomeScreenPreview() {
+    val primaryBrush = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFFC1A4FA),
+            Color(0xFFB289FD),
+            Color(0xFFAC7AFF)
+        )
+    )
+
+    Scaffold(
+        bottomBar = {
+            // Fake bottom navigation just for preview
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(66.dp)
+                    .background(Color.White.copy(alpha = 0.95f))
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(brush = primaryBrush)
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Emergency Assistance",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "In case of any danger or emergency, press the SOS button below to alert your trusted contacts immediately.",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = Color.White,
+                        lineHeight = 20.sp,
+                        textAlign = TextAlign.Center
+                    ),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+
+            // SOS Button
+            Column(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFF0076)),
+                    shape = CircleShape,
+                    modifier = Modifier
+                        .size(150.dp)
+                        .padding(bottom = 60.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 12.dp)
+                ) {
+                    Text(
+                        text = "SOS",
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Press and hold in case of emergency",
+                    color = Color.White.copy(alpha = 0.85f),
+                    style = MaterialTheme.typography.bodySmall
+                )
+
+                Spacer(modifier = Modifier.height(50.dp))
+            }
+        }
+    }
 }

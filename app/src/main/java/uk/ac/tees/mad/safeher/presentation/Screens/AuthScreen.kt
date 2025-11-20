@@ -31,6 +31,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -171,5 +172,97 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
 
+    }
+}
+
+
+@Preview(showBackground = true, name = "SafeHer - Auth Screen")
+@Composable
+fun AuthScreenPreview() {
+    val primaryBrush = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFFC1A4FA),
+            Color(0xFFB289FD),
+            Color(0xFFAC7AFF)
+        )
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(brush = primaryBrush)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+                .align(Alignment.TopCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(60.dp))
+
+            Image(
+                painter = painterResource(id = R.drawable.safe_her),
+                contentDescription = "SafeHer illustration",
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "Stay safe and confident — get instant alerts, trusted contacts, and real-time help wherever you are.",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = Color.Black,
+                    lineHeight = 22.sp,
+                    fontWeight = FontWeight.Light
+                ),
+                modifier = Modifier.padding(horizontal = 20.dp),
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            OutlinedButton(
+                onClick = { },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)
+                    .height(52.dp),
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(2.dp, Color.Black),
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Transparent)
+            ) {
+                Text(
+                    "Let's get started",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+
+            TextButton(onClick = { }) {
+                Text(
+                    buildAnnotatedString {
+                        withStyle(SpanStyle(color = Color.Black)) { append("Already have an account? ") }
+                        withStyle(
+                            SpanStyle(
+                                color = Color(0xFF0073FF),
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Medium
+                            )
+                        ) { append("Log in") }
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+        }
     }
 }
