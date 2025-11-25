@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.net.Uri
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
@@ -14,7 +15,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -23,10 +27,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import uk.ac.tees.mad.planty.data.remote.supabase.SupabaseClientProvider
 import uk.ac.tees.mad.safeher.data.local.ContactDao
 import uk.ac.tees.mad.safeher.data.local.ContactsEntity
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.jvm.java
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(private val contactDao: ContactDao) : ViewModel() {
@@ -108,6 +114,82 @@ class HomeViewModel @Inject constructor(private val contactDao: ContactDao) : Vi
         viewModelScope.launch {
             contactDao.deleteContact(contact)
         }
+    }
+
+
+    val db = FirebaseFirestore.getInstance()
+    val auth: FirebaseAuth = FirebaseAuth.getInstance()
+
+    val firestore = FirebaseFirestore.getInstance()
+
+
+    private val _currentUserData = MutableStateFlow(GetUserInfo())
+    val currentUserData: StateFlow<GetUserInfo> = _currentUserData
+    fun fetchCurrentUserData() {
+        auth.currentUser?.uid?.let { userId ->
+
+            db.collection("user").document(userId).addSnapshotListener { snapshot, e ->
+
+                if (e != null) {
+
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    val data = snapshot.toObject(GetUserInfo::class.java)
+                    data?.let {
+                        _currentUserData.value = it
+                        Log.d("Firestore","$it")
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    fun updateProfile(
+        ProfielImageByteArray: ByteArray,
+        name: String,
+        mob: String,
+        onResult: (String, Boolean) -> Unit,
+    ) {
+        viewModelScope.launch {
+            val userId = auth.currentUser?.uid ?: return@launch
+            val imageFileName = "profile_images/$userId.jpg"
+
+            try {
+                val ImageBucket = SupabaseClientProvider.client.storage["profile_images"]
+                ImageBucket.upload(imageFileName, ProfielImageByteArray, upsert = true)
+
+
+                val profileImageUrl = ImageBucket.publicUrl(imageFileName)
+                val updates = mapOf(
+                    "profileImageUrl" to profileImageUrl,
+                    "name" to name,
+                    "mobNumber" to mob
+
+                )
+                db.collection("user").document(userId).update(updates).addOnSuccessListener {
+                    onResult("Profile Update Success", true)
+                }.addOnFailureListener { e ->
+                    onResult(e.toString(), false)
+                }
+
+            } catch (e: Exception) {
+                onResult(e.toString(), false)
+            }
+        }
+
+
+
+
+    }
+
+    fun logoutUser() {
+
+        auth.signOut()
+
     }
 }
 

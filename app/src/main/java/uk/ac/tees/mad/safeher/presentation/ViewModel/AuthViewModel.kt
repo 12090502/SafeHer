@@ -34,6 +34,7 @@ class AuthViewModel @Inject constructor() : ViewModel() {
                                 email = email,
                                 uid = userId,
                                 passkey = password,
+                                mobNumber = ""
 
                             )
 
@@ -89,5 +90,17 @@ data class PostUserInfo(
     val name: String,
     val email: String,
     val uid: String,
+    val mobNumber: String,
     val passkey: String,
+
+)
+
+data class GetUserInfo(
+    val profileImageUrl: String = "",
+    val name: String = "",
+    val email: String = "",
+    val uid: String = "",
+    val mobNumber: String = "",
+    val passkey: String = "",
+
 )
