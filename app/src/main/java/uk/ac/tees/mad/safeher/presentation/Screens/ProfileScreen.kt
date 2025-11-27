@@ -27,9 +27,17 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +46,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -109,8 +118,10 @@ fun ProfileScreen(
     val imageRequest = ImageRequest.Builder(context).data(freshUrl).crossfade(true)
         .diskCachePolicy(CachePolicy.ENABLED).memoryCachePolicy(CachePolicy.ENABLED).build()
     val painter = rememberAsyncImagePainter(model = imageRequest)
-
-    // Access state directly (no collectAsState needed)
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var showDialogLogout by rememberSaveable { mutableStateOf(false) }
+    var showDialogNotification by rememberSaveable { mutableStateOf(false) }
+    var showDialogNotificationScheduling by rememberSaveable { mutableStateOf(false) }
 
     val state by painter.state.collectAsState()
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -161,7 +172,70 @@ fun ProfileScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color(0xFFC1A4FA)
-                )
+                ), actions = {
+                    Box {
+                        IconButton(onClick = { expanded = !expanded }) {
+                            Icon(
+                                imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = Color.Black
+                            )
+                        }
+
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            containerColor = bgColor,
+                            tonalElevation = 4.dp,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("App Notifications", color = textColor) },
+                                onClick = {
+                                    expanded = false
+                                    showDialogNotification = true
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Notifications,
+                                        contentDescription = "Notifications",
+                                        tint = textColor
+                                    )
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Schedule Notification", color = textColor) },
+                                onClick = {
+                                    expanded = false
+                                    showDialogNotificationScheduling = true
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector =  Icons.Default.Schedule,
+                                        contentDescription = "Schedule Notification",
+                                        tint = textColor
+                                    )
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("Log Out", color = textColor) },
+                                onClick = {
+                                    expanded = false
+                                    showDialogLogout = true
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.ExitToApp,
+                                        contentDescription = "Log out",
+                                        tint = textColor
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+                }
             )
         },
         bottomBar = {
@@ -171,6 +245,44 @@ fun ProfileScreen(
             )
         }
     ) { paddingValues ->
+
+        if (showDialogLogout) {
+            AlertDialog(
+                onDismissRequest = {
+                    expanded = false
+                    showDialogLogout = false
+                },
+                title = { Text("Logout", color = textColor) },
+                text = { Text("Are you sure you want to log out?", color = textColor) },
+                confirmButton = {
+                    TextButton(onClick = {
+                       homeViewModel.logoutUser()
+                        expanded = false
+                    }) {
+                        Text("Yes", color = textColor)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        expanded = false
+                        showDialogLogout = false
+                    }) {
+                        Text("No", color = textColor)
+                    }
+                },
+                containerColor = bgColor,
+                tonalElevation = 4.dp,
+                shape = RoundedCornerShape(16.dp)
+            )
+        }
+
+
+
+
+
+
+
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
