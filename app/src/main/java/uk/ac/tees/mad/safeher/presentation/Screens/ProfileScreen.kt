@@ -77,10 +77,12 @@ import uk.ac.tees.mad.safeher.presentation.ViewModel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(modifier: Modifier = Modifier,
-                  homeViewModel: HomeViewModel,
-                  authViewModel: AuthViewModel,
-                  navController: NavHostController) {
+fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    homeViewModel: HomeViewModel,
+    authViewModel: AuthViewModel,
+    navController: NavHostController,
+) {
 
     val PrimaryBrush = Brush.verticalGradient(
         colors = listOf(
@@ -112,8 +114,8 @@ fun ProfileScreen(modifier: Modifier = Modifier,
 
     val state by painter.state.collectAsState()
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    val bgColor = MaterialTheme.colorScheme.background
-    val textColor = MaterialTheme.colorScheme.onBackground
+    val bgColor = Color(0xFFB289FD)
+    val textColor = Color(0xFF010002)
     val defaulImagetUri = Uri.parse(
         "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/${R.drawable.default_profile}"
 
@@ -317,6 +319,7 @@ fun ProfileScreen(modifier: Modifier = Modifier,
                     label = { Text("Name", color = textColor) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = cornerShape,
+                    maxLines = 1,
                     colors = TextFieldDefaults.colors(
                         focusedTextColor = textColor,
                         unfocusedTextColor = textColor,
@@ -326,11 +329,11 @@ fun ProfileScreen(modifier: Modifier = Modifier,
                         unfocusedContainerColor = bgColor,
                         disabledContainerColor = bgColor,
                         focusedIndicatorColor = textColor,
-                        unfocusedIndicatorColor = textColor.copy(alpha = 0.5f),
-                        disabledIndicatorColor = textColor.copy(alpha = 0.3f),
+                        unfocusedIndicatorColor = textColor,
+                        disabledIndicatorColor = textColor,
                         focusedLabelColor = textColor,
-                        unfocusedLabelColor = textColor.copy(alpha = 0.8f),
-                        disabledLabelColor = textColor.copy(alpha = 0.5f)
+                        unfocusedLabelColor = textColor,
+                        disabledLabelColor = textColor
                     )
                 )
 
@@ -360,12 +363,13 @@ fun ProfileScreen(modifier: Modifier = Modifier,
                         unfocusedContainerColor = bgColor,
                         disabledContainerColor = bgColor,
                         focusedIndicatorColor = textColor,
-                        unfocusedIndicatorColor = textColor.copy(alpha = 0.5f),
-                        disabledIndicatorColor = textColor.copy(alpha = 0.3f),
+                        unfocusedIndicatorColor = textColor,
+                        disabledIndicatorColor = textColor,
                         focusedLabelColor = textColor,
-                        unfocusedLabelColor = textColor.copy(alpha = 0.8f),
-                        disabledLabelColor = textColor.copy(alpha = 0.5f)
-                    )
+                        unfocusedLabelColor = textColor,
+                        disabledLabelColor = textColor
+                    ),
+                    maxLines = 1,
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -383,7 +387,7 @@ fun ProfileScreen(modifier: Modifier = Modifier,
                     },
                     modifier = Modifier.fillMaxWidth(),
                     shape = cornerShape,
-                    isError = showError,
+                    isError = showError, maxLines = 1,
                     colors = TextFieldDefaults.colors(
                         focusedTextColor = textColor,
                         unfocusedTextColor = textColor,
@@ -393,11 +397,11 @@ fun ProfileScreen(modifier: Modifier = Modifier,
                         unfocusedContainerColor = bgColor,
                         disabledContainerColor = bgColor,
                         focusedIndicatorColor = textColor,
-                        unfocusedIndicatorColor = textColor.copy(alpha = 0.5f),
-                        disabledIndicatorColor = textColor.copy(alpha = 0.3f),
+                        unfocusedIndicatorColor = textColor,
+                        disabledIndicatorColor = textColor,
                         focusedLabelColor = textColor,
-                        unfocusedLabelColor = textColor.copy(alpha = 0.8f),
-                        disabledLabelColor = textColor.copy(alpha = 0.5f)
+                        unfocusedLabelColor = textColor,
+                        disabledLabelColor = textColor
                     )
                 )
                 Spacer(modifier = Modifier.height(32.dp))
@@ -495,8 +499,6 @@ fun ProfileScreen(modifier: Modifier = Modifier,
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 }
-
-
 
 
             }

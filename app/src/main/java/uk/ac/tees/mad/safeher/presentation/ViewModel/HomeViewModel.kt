@@ -120,7 +120,6 @@ class HomeViewModel @Inject constructor(private val contactDao: ContactDao) : Vi
     val db = FirebaseFirestore.getInstance()
     val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    val firestore = FirebaseFirestore.getInstance()
 
 
     private val _currentUserData = MutableStateFlow(GetUserInfo())
@@ -156,10 +155,10 @@ class HomeViewModel @Inject constructor(private val contactDao: ContactDao) : Vi
     ) {
         viewModelScope.launch {
             val userId = auth.currentUser?.uid ?: return@launch
-            val imageFileName = "profile_images/$userId.jpg"
+            val imageFileName = "safeHer_pf_img/$userId.jpg"
 
             try {
-                val ImageBucket = SupabaseClientProvider.client.storage["profile_images"]
+                val ImageBucket = SupabaseClientProvider.client.storage["safeHer_pf_img"]
                 ImageBucket.upload(imageFileName, ProfielImageByteArray, upsert = true)
 
 
