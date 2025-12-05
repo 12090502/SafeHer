@@ -3,10 +3,13 @@ package uk.ac.tees.mad.safeher.presentation.Screens
 import android.Manifest
 import android.R.id.message
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.view.Gravity
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
@@ -42,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 
 import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -49,6 +53,7 @@ import uk.ac.tees.mad.safeher.presentation.UtilsScreens.BottomNavigation
 import uk.ac.tees.mad.safeher.presentation.ViewModel.AuthViewModel
 import uk.ac.tees.mad.safeher.presentation.ViewModel.HomeViewModel
 import java.io.File.separator
+
 
 @Composable
 fun HomeScreen(
@@ -137,6 +142,15 @@ fun HomeScreen(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
             }
+            val fineLocation = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PermissionChecker.PERMISSION_GRANTED
+
+            val coarseLocation = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PermissionChecker.PERMISSION_GRANTED
 
             // SOS Button at bottom
             Column(
@@ -145,28 +159,37 @@ fun HomeScreen(
             ) {
                 Button(
                     onClick = {
+                        if (isLocationPermissionGranted(context)) {
+                            if (isLocationEnabled(context)) {
 
-                        if (contacts.size != 0) {
+                                val phoneNumbers: List<String> = contacts.map { it.contactNumber }
 
-                            homeViewModel.fetchCurrentLocation(context)
-
-                            val phoneNumbers: List<String> = contacts.map { it.contactNumber }
-
-                            homeViewModel.smsIntent(
-                                context = context,
-                                lon = locationState.lon,
-                                lat = locationState.lat,
-                                phoneNumbers = phoneNumbers,
-                                cityName = cityName
-                            )
+                                if (contacts.size != 0) {
+                                    homeViewModel.fetchCurrentLocation(
+                                        context,
+                                        phoneNumbers = phoneNumbers,
+                                    )
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Please add a trusted contact first",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            } else {
+                                showColoredToast(
+                                    context,
+                                    "Location Access not granted",
+                                    Color.Red.hashCode()
+                                )
+                            }
                         } else {
-                            Toast.makeText(
+                            showColoredToast(
                                 context,
-                                "Please add a trusted contact first",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                                "Location permission not granted",
+                                Color.Red.hashCode()
+                            )
                         }
-
 
 
                     },
@@ -199,4 +222,26 @@ fun HomeScreen(
     }
 
 
+}
+
+fun isLocationPermissionGranted(context: Context): Boolean {
+    val fineLocation = ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PermissionChecker.PERMISSION_GRANTED
+
+    val coarseLocation = ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.ACCESS_COARSE_LOCATION
+    ) == PermissionChecker.PERMISSION_GRANTED
+
+    return fineLocation || coarseLocation
+}
+
+fun showColoredToast(context: Context, message: String, color: Int) {
+    Toast.makeText(context, message, Toast.LENGTH_SHORT).apply {
+        view?.setBackgroundColor(color)
+        setGravity(Gravity.BOTTOM, 0, 100)
+        show()
+    }
 }

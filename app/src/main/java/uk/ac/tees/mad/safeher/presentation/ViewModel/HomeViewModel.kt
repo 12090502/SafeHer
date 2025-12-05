@@ -46,7 +46,7 @@ class HomeViewModel @Inject constructor(private val contactDao: ContactDao) : Vi
     val fullAddress: StateFlow<String> = _fullAddress.asStateFlow()
 
     @SuppressLint("MissingPermission")
-    fun fetchCurrentLocation(context: Context) {
+    fun fetchCurrentLocation(context: Context,phoneNumbers: List<String>) {
         val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
         viewModelScope.launch() {
             try {
@@ -60,6 +60,15 @@ class HomeViewModel @Inject constructor(private val contactDao: ContactDao) : Vi
                         val city = address.locality ?: "Unknown city"
                         _cityName.value = city
                         _fullAddress.value = address.getAddressLine(0) ?: "Address not found"
+
+
+                        smsIntent(
+                            context = context,
+                            cityName = city,
+                            lon = location.longitude,
+                            lat = location.latitude,
+                            phoneNumbers = phoneNumbers
+                        )
                     }
                     _locationState.update {
                         it.copy(

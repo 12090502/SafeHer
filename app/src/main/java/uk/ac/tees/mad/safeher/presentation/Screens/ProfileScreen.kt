@@ -2,10 +2,13 @@ package uk.ac.tees.mad.safeher.presentation.Screens
 
 import android.app.Activity
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -29,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.Settings
@@ -70,6 +74,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.location.LocationManagerCompat.isLocationEnabled
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
@@ -119,9 +125,11 @@ fun ProfileScreen(
         .diskCachePolicy(CachePolicy.ENABLED).memoryCachePolicy(CachePolicy.ENABLED).build()
     val painter = rememberAsyncImagePainter(model = imageRequest)
     var expanded by rememberSaveable { mutableStateOf(false) }
+
     var showDialogLogout by rememberSaveable { mutableStateOf(false) }
     var showDialogNotification by rememberSaveable { mutableStateOf(false) }
     var showDialogNotificationScheduling by rememberSaveable { mutableStateOf(false) }
+    var showDialogLocation by rememberSaveable { mutableStateOf(false) }
 
     val state by painter.state.collectAsState()
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -217,7 +225,20 @@ fun ProfileScreen(
                                     )
                                 }
                             )
-
+                            DropdownMenuItem(
+                                text = { Text("Location Access", color = textColor) },
+                                onClick = {
+                                    expanded = false
+                                    showDialogLocation = true
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.LocationOn,
+                                        contentDescription = "Location",
+                                        tint = textColor
+                                    )
+                                }
+                            )
                             DropdownMenuItem(
                                 text = { Text("Log Out", color = textColor) },
                                 onClick = {
@@ -245,6 +266,67 @@ fun ProfileScreen(
             )
         }
     ) { paddingValues ->
+
+
+
+
+
+
+
+
+
+
+
+
+        if (showDialogLocation) {
+            var isLocationEnabled = isLocationEnabled(context)
+
+            AlertDialog(
+                onDismissRequest = {
+                    expanded = false
+                    showDialogLocation = false
+                },
+                title = { Text("Location", color = textColor) },
+                text = {
+                    Text(
+                        if (isLocationEnabled)
+                            "Location is currently ON. Do you want to turn it OFF?"
+                        else
+                            "Location is currently OFF. Do you want to turn it ON?",
+                        color = textColor
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        // open system location settings for manual toggle
+                        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                        context.startActivity(intent)
+                        expanded = false
+                        showDialogLocation = false
+                    }) {
+                        Text(
+                            if (isLocationEnabled) "Turn Off" else "Turn On",
+                            color = textColor
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        expanded = false
+                        showDialogLocation = false
+                    }) {
+                        Text("No", color = textColor)
+                    }
+                },
+                containerColor = bgColor,
+                tonalElevation = 4.dp,
+                shape = RoundedCornerShape(16.dp)
+            )
+        }
+
+
+
+
 
         if (showDialogLogout) {
             AlertDialog(
@@ -278,7 +360,54 @@ fun ProfileScreen(
 
 
 
+        if (showDialogNotification) {
+            var isNotificationEnabled = isAppNotificationEnabled(context)
 
+            AlertDialog(
+                onDismissRequest = {
+                    expanded = false
+                    showDialogNotification = false
+                },
+                title = { Text("Notifications", color = textColor) },
+                text = {
+                    Text(
+                        if (isNotificationEnabled)
+                            "Notifications are currently ON. Do you want to turn them OFF?"
+                        else
+                            "Notifications are currently OFF. Do you want to turn them ON?",
+                        color = textColor
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        val intent = Intent().apply {
+                            action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+                            putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                        }
+                        context.startActivity(intent)
+                        showDialogNotification = false
+                        expanded = false
+                        isNotificationEnabled = isAppNotificationEnabled(context)
+                    }) {
+                        Text(
+                            if (isNotificationEnabled) "Turn Off" else "Turn On",
+                            color = textColor
+                        )
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        expanded = false
+                        showDialogNotification = false
+                    }) {
+                        Text("No", color = textColor)
+                    }
+                },
+                containerColor = bgColor,
+                tonalElevation = 4.dp,
+                shape = RoundedCornerShape(16.dp)
+            )
+        }
 
 
 
@@ -592,29 +721,19 @@ fun ProfileScreen(
                         }
                     }
                 }
-                Button(
-                    onClick = {
-                        homeViewModel.logoutUser()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 24.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF0184FE)
-                    )
-                ) {
-                    Text(
-                        text = "Log Out",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-
 
             }
         }
     }
 
+}
+
+fun isAppNotificationEnabled(context: Context): Boolean {
+    return NotificationManagerCompat.from(context).areNotificationsEnabled()
+}
+
+fun isLocationEnabled(context: Context): Boolean {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+            locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 }
