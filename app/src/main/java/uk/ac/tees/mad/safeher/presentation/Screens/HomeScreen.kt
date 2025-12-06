@@ -184,6 +184,15 @@ fun HomeScreen(
                                 )
                             }
                         } else {
+
+                            ActivityCompat.requestPermissions(
+                                context as Activity,
+                                arrayOf(
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
+                                    Manifest.permission.ACCESS_COARSE_LOCATION
+                                ),
+                                1001
+                            )
                             showColoredToast(
                                 context,
                                 "Location permission not granted",
@@ -210,11 +219,11 @@ fun HomeScreen(
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = "Press and hold in case of emergency",
-                    color = Color.White.copy(alpha = 0.8f),
-                    style = MaterialTheme.typography.bodySmall
-                )
+//                Text(
+//                    text = "Press and hold in case of emergency",
+//                    color = Color.White.copy(alpha = 0.8f),
+//                    style = MaterialTheme.typography.bodySmall
+//                )
 
                 Spacer(modifier = Modifier.height(50.dp))
             }

@@ -134,7 +134,7 @@ fun ProfileScreen(
     val state by painter.state.collectAsState()
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     val bgColor = Color(0xFFB289FD)
-    val textColor = Color(0xFF010002)
+    val textColor = MaterialTheme.colorScheme.background
     val defaulImagetUri = Uri.parse(
         "${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/${R.drawable.default_profile}"
 
@@ -186,7 +186,7 @@ fun ProfileScreen(
                             Icon(
                                 imageVector = if (expanded) Icons.Default.KeyboardArrowUp else Icons.Default.Settings,
                                 contentDescription = "Settings",
-                                tint = Color.Black
+                                tint = textColor
                             )
                         }
 
@@ -279,7 +279,9 @@ fun ProfileScreen(
 
 
         if (showDialogLocation) {
-            var isLocationEnabled = isLocationEnabled(context)
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            var isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                    locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
             AlertDialog(
                 onDismissRequest = {
@@ -298,11 +300,12 @@ fun ProfileScreen(
                 },
                 confirmButton = {
                     TextButton(onClick = {
-                        // open system location settings for manual toggle
                         val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                         context.startActivity(intent)
-                        expanded = false
                         showDialogLocation = false
+                        expanded = false
+                        // Recheck after user action
+                        isLocationEnabled = isLocationEnabled(context)
                     }) {
                         Text(
                             if (isLocationEnabled) "Turn Off" else "Turn On",
@@ -323,7 +326,6 @@ fun ProfileScreen(
                 shape = RoundedCornerShape(16.dp)
             )
         }
-
 
 
 
