@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.safeher.presentation.Screens
 
 import android.app.Activity
+import android.app.TimePickerDialog
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -15,6 +16,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +51,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
@@ -72,6 +75,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationManagerCompat
@@ -89,6 +93,7 @@ import uk.ac.tees.mad.safeher.R
 import uk.ac.tees.mad.safeher.presentation.UtilsScreens.BottomNavigation
 import uk.ac.tees.mad.safeher.presentation.ViewModel.AuthViewModel
 import uk.ac.tees.mad.safeher.presentation.ViewModel.HomeViewModel
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -145,7 +150,7 @@ fun ProfileScreen(
     } else {
         selectedImageUri!!
     }
-
+    var selectedTime by rememberSaveable { mutableStateOf("") }
 //android 13
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(), onResult = { uri ->
@@ -219,7 +224,7 @@ fun ProfileScreen(
                                 },
                                 leadingIcon = {
                                     Icon(
-                                        imageVector =  Icons.Default.Schedule,
+                                        imageVector = Icons.Default.Schedule,
                                         contentDescription = "Schedule Notification",
                                         tint = textColor
                                     )
@@ -268,10 +273,96 @@ fun ProfileScreen(
     ) { paddingValues ->
 
 
+        if (showDialogNotificationScheduling) {
+
+            val context = LocalContext.current
+
+
+            val calendar = Calendar.getInstance()
+            val timePickerDialog = TimePickerDialog(
+                context,
+                { _, hour: Int, minute: Int ->
+                    val formattedTime = String.format(
+                        "%02d:%02d %s",
+                        if (hour % 12 == 0) 12 else hour % 12,
+                        minute,
+                        if (hour >= 12) "PM" else "AM"
+                    )
+                    selectedTime = formattedTime
+                },
+                calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                false
+            )
+
+            AlertDialog(
+                onDismissRequest = {
+                    expanded = false
+                    showDialogNotificationScheduling = false
+                },
+                title = { Text("Schedule Notifications", color = textColor) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Text(
+                            "Choose a time to receive your daily safety reminder.",
+                            color = textColor
+                        )
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { timePickerDialog.show() }
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Text("Reminder Time", color = textColor)
+                            Text("Set the time", color = textColor, fontWeight = FontWeight.Bold)
+                        }
+
+                        Text(selectedTime, color = textColor,)
+                        Text(
+                            "You’ll receive a notification every day at your selected time.",
+                            color = textColor,
+                            fontSize = 13.sp
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+
+                        if (selectedTime.isNotBlank()) {
+                            Toast.makeText(
+                                context,
+                                "You will get notifications daily at $selectedTime",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }else{
+                            showDialogNotificationScheduling = false
+                            expanded = false
+                        }
 
 
 
-
+                        showDialogNotificationScheduling = false
+                        expanded = false
+                    }) {
+                        Text("Save", color = textColor)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        expanded = false
+                        showDialogNotificationScheduling = false
+                    }) {
+                        Text("Cancel", color = textColor)
+                    }
+                },
+                containerColor = bgColor,
+                tonalElevation = 4.dp,
+                shape = RoundedCornerShape(16.dp)
+            )
+        }
 
 
 
@@ -279,9 +370,11 @@ fun ProfileScreen(
 
 
         if (showDialogLocation) {
-            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            var isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
-                    locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            val locationManager =
+                context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            var isLocationEnabled =
+                locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                        locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
             AlertDialog(
                 onDismissRequest = {
@@ -340,7 +433,7 @@ fun ProfileScreen(
                 text = { Text("Are you sure you want to log out?", color = textColor) },
                 confirmButton = {
                     TextButton(onClick = {
-                       homeViewModel.logoutUser()
+                        homeViewModel.logoutUser()
                         expanded = false
                     }) {
                         Text("Yes", color = textColor)
@@ -738,4 +831,193 @@ fun isLocationEnabled(context: Context): Boolean {
     val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
             locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, name = "SafeHer – Profile Screen")
+@Composable
+fun ProfileScreenPreview() {
+    val primaryBrush = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFFC1A4FA),
+            Color(0xFFB289FD),
+            Color(0xFFAC7AFF)
+        )
+    )
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Profile",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = Color.White
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFC1A4FA)),
+                actions = {
+                    var expanded by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { expanded = !expanded }) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = Color.White
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            containerColor = Color(0xFFB289FD)
+                        ) {
+                            listOf("App Notifications", "Schedule Notification", "Location Access", "Log Out").forEach { item ->
+                                DropdownMenuItem(
+                                    text = { Text(item, color = Color.White) },
+                                    onClick = { expanded = false },
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = when (item) {
+                                                "App Notifications" -> Icons.Default.Notifications
+                                                "Schedule Notification" -> Icons.Default.Schedule
+                                                "Location Access" -> Icons.Default.LocationOn
+                                                else -> Icons.Default.ExitToApp
+                                            },
+                                            contentDescription = null,
+                                            tint = Color.White
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            )
+        },
+        bottomBar = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(66.dp)
+                    .background(Color.White)
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(brush = primaryBrush)
+                .padding(paddingValues)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Profile Picture + Edit Button
+                Box(contentAlignment = Alignment.BottomEnd) {
+                    AsyncImage(
+                        model = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800",
+                        contentDescription = "Profile",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                    IconButton(
+                        onClick = {},
+                        modifier = Modifier
+                            .size(35.dp)
+                            .background(Color(0xFF0184FE), CircleShape)
+                    ) {
+                        Icon(Icons.Default.Edit, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Name Field
+                OutlinedTextField(
+                    value = "Sarah Johnson",
+                    onValueChange = {},
+                    label = { Text("Name") },
+                    enabled = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFB289FD),
+                        unfocusedContainerColor = Color(0xFFB289FD),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = Color.White,
+                        focusedIndicatorColor = Color.White,
+                        unfocusedIndicatorColor = Color.White.copy(alpha = 0.5f)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Mobile Field
+                OutlinedTextField(
+                    value = "+44 7700 900123",
+                    onValueChange = {},
+                    label = { Text("Update Mobile") },
+                    enabled = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFB289FD),
+                        unfocusedContainerColor = Color(0xFFB289FD),
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        cursorColor = Color.White,
+                        focusedIndicatorColor = Color.White,
+                        unfocusedIndicatorColor = Color.White.copy(alpha = 0.5f)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Email Field (Disabled)
+                OutlinedTextField(
+                    value = "sarah.j@example.com",
+                    onValueChange = {},
+                    label = { Text("Email") },
+                    enabled = false,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        disabledContainerColor = Color(0xFFB289FD),
+                        disabledTextColor = Color.White,
+                        disabledIndicatorColor = Color.White.copy(alpha = 0.3f),
+                        disabledLabelColor = Color.White.copy(alpha = 0.8f)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Update/Cancel Buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = {},
+                        modifier = Modifier.weight(1f),
+                        border = BorderStroke(1.dp, Color.White)
+                    ) {
+                        Text("Cancel", color = Color.White)
+                    }
+                    Button(
+                        onClick = {},
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0184FE))
+                    ) {
+                        Text("Update", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+        }
+    }
 }

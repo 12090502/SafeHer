@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -297,4 +298,159 @@ fun SingInScreen(modifier: Modifier = Modifier,
 
     }
 
+}
+
+@Preview(showBackground = true, name = "SafeHer – Sign Up Screen")
+@Composable
+fun SingInScreenPreview() {
+    val primaryBrush = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFFC1A4FA),
+            Color(0xFFB289FD),
+            Color(0xFFAC7AFF)
+        )
+    )
+
+    var name by rememberSaveable { mutableStateOf("Sarah Johnson") }
+    var email by rememberSaveable { mutableStateOf("sarah.j@example.com") }
+    var password by rememberSaveable { mutableStateOf("Safe@2025") }
+    var passwordVisible by rememberSaveable { mutableStateOf(true) }
+
+    val bgColor = Color(0xFFB289FD)
+    val textColor = Color(0xFF010002)
+
+    Box(modifier = Modifier.fillMaxSize().background(brush = primaryBrush)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
+                .align(Alignment.TopCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(100.dp))
+
+            // Name Field
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                placeholder = { Text("Name", color = textColor.copy(alpha = 0.6f)) },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = bgColor,
+                    unfocusedContainerColor = bgColor,
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
+                    cursorColor = textColor,
+                    focusedIndicatorColor = textColor,
+                    unfocusedIndicatorColor = textColor
+                )
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // Email Field
+            OutlinedTextField(
+                value = email,
+                onValueChange = { email = it },
+                placeholder = { Text("Email", color = textColor.copy(alpha = 0.6f)) },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = bgColor,
+                    unfocusedContainerColor = bgColor,
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
+                    cursorColor = textColor,
+                    focusedIndicatorColor = textColor,
+                    unfocusedIndicatorColor = textColor
+                )
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // Password Field
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                placeholder = { Text("Password", color = textColor.copy(alpha = 0.6f)) },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp),
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            painter = painterResource(
+                                if (passwordVisible) R.drawable.baseline_visibility_24
+                                else R.drawable.outline_visibility_off_24
+                            ),
+                            contentDescription = null,
+                            tint = textColor
+                        )
+                    }
+                },
+                singleLine = true,
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = bgColor,
+                    unfocusedContainerColor = bgColor,
+                    focusedTextColor = textColor,
+                    unfocusedTextColor = textColor,
+                    cursorColor = textColor,
+                    focusedIndicatorColor = textColor,
+                    unfocusedIndicatorColor = textColor
+                )
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 10.dp)
+                .align(Alignment.BottomCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            OutlinedButton(
+                onClick = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)
+                    .height(52.dp),
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(2.dp, textColor),
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = Color.Transparent)
+            ) {
+                Text(
+                    "Sign uppf",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            TextButton(onClick = {}) {
+                Text(
+                    buildAnnotatedString {
+                        withStyle(SpanStyle(color = Color.Black)) { append("Already have an account? ") }
+                        withStyle(
+                            SpanStyle(
+                                color = Color(0xFF0073FF),
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Medium
+                            )
+                        ) { append("Log in") }
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+        }
+    }
 }

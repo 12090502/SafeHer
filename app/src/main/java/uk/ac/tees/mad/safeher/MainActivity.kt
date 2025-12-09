@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import uk.ac.tees.mad.planty.notificaion.scheduleDailySafetyReminders
 import uk.ac.tees.mad.planty.notificaion.showInstantNotification
 import uk.ac.tees.mad.safeher.presentation.ViewModel.AuthViewModel
 import uk.ac.tees.mad.safeher.presentation.ViewModel.HomeViewModel
@@ -26,7 +27,8 @@ class MainActivity : ComponentActivity() {
     private val authViewModel: AuthViewModel by viewModels<AuthViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        showInstantNotification(this)
+        scheduleDailySafetyReminders(this)
+//        showInstantNotification(this)
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()

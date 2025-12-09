@@ -13,8 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -56,6 +59,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -244,3 +248,188 @@ fun TrustedContactScreen(
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, name = "SafeHer – Trusted Contacts (Empty State)")
+@Composable
+fun TrustedContactScreenPreview_Empty() {
+    val primaryBrush = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFFC1A4FA),
+            Color(0xFFB289FD),
+            Color(0xFFAC7AFF)
+        )
+    )
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Trusted Contacts",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFC1A4FA))
+            )
+        },
+        bottomBar = {
+            Box(modifier = Modifier.height(66.dp).fillMaxWidth().background(Color.White))
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {},
+                containerColor = Color(0xFF894AFF),
+                contentColor = Color.White,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Contact")
+            }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(brush = primaryBrush)
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "No contacts found",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Please add your trusted contacts.",
+                    style = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF894AFF)),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text("Add Trusted Contact", color = Color.White)
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, name = "SafeHer – Trusted Contacts (With Contacts)")
+@Composable
+fun TrustedContactScreenPreview_WithContacts() {
+    val primaryBrush = Brush.verticalGradient(
+        colors = listOf(
+            Color(0xFFC1A4FA),
+            Color(0xFFB289FD),
+            Color(0xFFAC7AFF)
+        )
+    )
+
+    val sampleContacts = listOf(
+        ContactsEntity(id = 1, name = "Mom", relationShip = "Mother", contactNumber = "+44 7700 900111"),
+        ContactsEntity(id = 2, name = "Best Friend", relationShip = "Friend", contactNumber = "+44 7700 900222"),
+        ContactsEntity(id = 3, name = "Sister", relationShip = "Sibling", contactNumber = "+44 7700 900333")
+    )
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Trusted Contacts",
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFC1A4FA))
+            )
+        },
+        bottomBar = {
+            Box(modifier = Modifier.height(66.dp).fillMaxWidth().background(Color.White))
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {},
+                containerColor = Color(0xFF894AFF),
+                contentColor = Color.White,
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Add Contact")
+            }
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(brush = primaryBrush)
+                .padding(paddingValues)
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(sampleContacts) { contact ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(6.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // Avatar placeholder
+                            Box(
+                                modifier = Modifier
+                                    .size(56.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFF894AFF)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = contact.name.first().toString(),
+                                    color = Color.White,
+                                    fontSize = 24.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(contact.name, fontWeight = FontWeight.Bold, color = Color.White)
+                                Text(contact.relationShip, color = Color.White.copy(alpha = 0.8f))
+                                Text(contact.contactNumber, color = Color.White.copy(alpha = 0.7f), fontSize = 14.sp)
+                            }
+
+                            IconButton(onClick = {}) {
+                                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
